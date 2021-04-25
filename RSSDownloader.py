@@ -37,10 +37,10 @@ class RSSDownloader(object):
         # -------------------------- #
         self.torrentFolder = os.path.join(
             sys.path[0], getConfig()['config']['torrentFolder'].get())
-            
+
         self.Historyfolder = os.path.join(
             sys.path[0], getConfig()['config']['historyFolder'].get(), self.folderName)
-            
+
         # Location of incoming links file
         self.inc = '{0}/{1}'.format(self.Historyfolder, RSSDownloader.inc)
         # Location of history link file

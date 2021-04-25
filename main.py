@@ -11,6 +11,7 @@ from utilConfig import getConfig
 if sys.version_info[0] < 3:
     raise Exception("Must be using Python 3")
 
+
 def main(argv):
     config = getConfig()
     rssFeeds = config['config']['rss'].get()
