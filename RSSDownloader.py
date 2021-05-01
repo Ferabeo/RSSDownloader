@@ -80,9 +80,17 @@ class RSSDownloader(object):
 
     def getRssData(self):
         try:
-            self.data = feedparser.parse(self.rssUrl)
+            data = feedparser.parse(self.rssUrl)
+
+            if data.status != 200:
+                sys.exit('Error getting RSS data - HTTP Code {}'.format(data.status))
+            if data.bozo:
+                sys.exit('Error getting RSS data - Bozo parse error {}'.format(data.bozo_exception))
+
         except Exception as e:
             sys.exit('Error getting RSS data - {}'.format(e))
+
+        self.data = data
 
     def buildInc(self):
         for post in self.data.entries:
