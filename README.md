@@ -22,8 +22,12 @@ appName: RSSDownloader
 config:
   historyFolder: history
   torrentFolder: download
+  notOlderThan: "Sat, 01 Jan 2022 00:00:00 +0200"
+  notOlderThanFormat: "%a, %d %b %Y %H:%M:%S %z"
 
   rss:
+    - name: YggTorrent-Slay3R
+      url: https://jackett.myserver.fr/api/v2.0/indexers/yggtorrent/results/torznab/api?apikey=apikey&t=search&cat=102183&q=1080p+x264+Slay3R
     - name: YggTorrent-JiHeFF
       url: https://jackett.myserver.fr/api/v2.0/indexers/yggtorrent/results/torznab/api?apikey=apikey&t=search&cat=102183&q=1080p+x264+JiHeFF
     - name: Science & Vie 
@@ -37,9 +41,12 @@ Folders :
  - historyFolder: download history per feed. 
  - torrentFolder: contain all `.torrent` files downloaded.
 
+Time limit :
+- notOlderThan: items older than this will not be grabbed
+- notOlderThanFormat: format of item published date
 
 Definition of RSS feeds:
 
   - name : name to identify the URL RSS feed
   - URL : RSS feed URL
-  - filter : filter regex to keep only the needed
+  - filter : filter regex on **title** attribute of each entry

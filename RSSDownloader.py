@@ -3,6 +3,8 @@ import os
 import sys
 import re
 
+from datetime import datetime
+
 # Custom libs
 import requests
 import feedparser
@@ -19,8 +21,8 @@ class RSSDownloader(object):
     RSSDownloader download all .torrent files from RSS feed
     history of downloaded file is kept on rss-hist.txt
     '''
-    hist = 'rss-hist.txt'		# Location of history file
-    inc = 'rss-inc.txt'		# Location of incoming links file
+    hist = 'rss-hist.txt'       # Location of history file
+    inc = 'rss-inc.txt'     # Location of incoming links file
 
     def __init__(self, rssFeed):
         '''Return a RSSDownloader object'''
@@ -32,6 +34,12 @@ class RSSDownloader(object):
         self.filterPattern = re.compile(self.filterRegex)
         self.folderName = sanitize_filename(self.name)
 
+        self.notOlderThanFormat = getConfig(
+        )['config']['notOlderThanFormat'].get()
+        self.notOlderThan = datetime.strptime(
+            getConfig()['config']['notOlderThan'].get(),
+            self.notOlderThanFormat)
+
         # -------------------------- #
         #  Create files and folders
         # -------------------------- #
@@ -39,7 +47,9 @@ class RSSDownloader(object):
             sys.path[0], getConfig()['config']['torrentFolder'].get())
 
         self.Historyfolder = os.path.join(
-            sys.path[0], getConfig()['config']['historyFolder'].get(), self.folderName)
+            sys.path[0],
+            getConfig()['config']['historyFolder'].get(),
+            self.folderName)
 
         # Location of incoming links file
         self.inc = '{0}/{1}'.format(self.Historyfolder, RSSDownloader.inc)
@@ -104,8 +114,9 @@ class RSSDownloader(object):
 
     def buildInc(self):
         for post in self.data.entries:
-            if post.title not in self.incData and self.allowedByFilter(
-                    post.title):
+            if (post.title not in self.incData
+                    and self.allowedByFilter(post.title)
+                    and self.allowedByDateLimit(post.published)):
                 self.incData[post.title] = {
                     'link': post.link,
                     'published': post.published,
@@ -122,6 +133,12 @@ class RSSDownloader(object):
 
     def allowedByFilter(self, title):
         if self.filterPattern.search(title):
+            return True
+        return False
+
+    def allowedByDateLimit(self, published):
+        if self.notOlderThan < datetime.strptime(
+                published, self.notOlderThanFormat):
             return True
         return False
 
@@ -162,4 +179,4 @@ class RSSDownloader(object):
 
     def infos(self):
         print('{0}\n- PATH: {1}\n- RSS: {2}'.format(self.name,
-              self.Historyfolder, self.rssUrl))
+                                                    self.Historyfolder, self.rssUrl))
