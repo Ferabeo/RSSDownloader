@@ -22,6 +22,7 @@ appName: RSSDownloader
 config:
   historyFolder: history
   torrentFolder: download
+  movieListReferenceSkip: movieListReferenceSkip.txt
   notOlderThan: "Sat, 01 Jan 2022 00:00:00 +0200"
   notOlderThanFormat: "%a, %d %b %Y %H:%M:%S %z"
 
