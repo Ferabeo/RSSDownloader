@@ -1,8 +1,3 @@
-'''
-    RSSDownloader download all .torrent files from RSS feed
-    history of downloaded file is kept on rss-hist.txt
-'''
-
 import os
 import sys
 import re
@@ -24,24 +19,27 @@ class RSSDownloader(object):
     hist = 'rss-hist.txt'       # Location of history file
     inc = 'rss-inc.txt'     # Location of incoming links file
 
-    def __init__(self, rssFeed):
+    def __init__(self, rssFeed, config, referenceList):
         '''Return a RSSDownloader object'''
 
+        # -------------- #
+        #  Informations  #
+        # -------------- #
         # RSS Feed
         self.name = rssFeed.get('name')
         self.rss_url = rssFeed.get('url')
-
         self.filter_pattern = re.compile(rssFeed.get('filter', '.*'))
+        self.referenceList = referenceList
 
-        self.config = getConfig()['config']
-
+        # Config
+        self.config = config
         self.not_older_than = datetime.strptime(
             self.get_attr('notOlderThan'),
             self.get_attr('notOlderThanFormat'))
 
-        # -------------------------- #
-        #  Create files and folders  #
-        # -------------------------- #
+        # ------------------- #
+        #  Files and folders  #
+        # ------------------- #
         self.torrent_folder = os.path.join(
             sys.path[0], self.get_attr('torrentFolder'))
 
@@ -56,18 +54,13 @@ class RSSDownloader(object):
         self.create_folder_files()
 
         # -------------------------- #
-        # Load File History          #
+        # Load Inc and History File  #
         # -------------------------- #
         self.data = None
         self.inc_data = readJsonFile(self.inc)
         self.hist_data = readJsonFile(self.hist)
 
-    def create_folder_files(self):
-        '''Create folder and files'''
-        Path(self.torrent_folder).mkdir(parents=True, exist_ok=True)
-        Path(self.history_folder).mkdir(parents=True, exist_ok=True)
-        Path(self.inc).touch(exist_ok=True)
-        Path(self.hist).touch(exist_ok=True)
+        self.downloaded_titles = []
 
     def start(self):
         '''Loop over RSS config to download .torrents files'''
@@ -119,7 +112,8 @@ class RSSDownloader(object):
         for post in self.data.entries:
             if (post.title not in self.inc_data
                     and self.allowed_by_filter(post.title)
-                    and self.allowed_by_date_limit(post.published)):
+                    and self.allowed_by_date_limit(post.published)
+                    and self.referenceList.present(post.title)):
                 self.inc_data[post.title] = {
                     'link': post.link,
                     'published': post.published,
@@ -149,7 +143,8 @@ class RSSDownloader(object):
         return False
 
     def download_torrents(self):
-        '''Download items in rss-inc.txt and if sucessfull write rss-hist.txt'''
+        '''Download items in rss-inc.txt and
+        if sucessfull write rss-hist.txt'''
         if len(self.inc_data.items()) == 0:
             print('{0} - already up to date.'.format(self.name))
 
@@ -162,13 +157,16 @@ class RSSDownloader(object):
                 if status_code == 200:
                     self.hist_data[inc] = inc_data
                     writeJsonFile(self.hist, self.hist_data)
+                    # Add movie name to list of downloaded titles
+                    self.downloaded_titles.append(inc)
 
     def download_torrent(self, inc, inc_data):
         '''Download .torrent and write to file'''
         dest_file = '{}.torrent'.format(sanitize_filename(inc))
         dest_full_path = os.path.join(self.torrent_folder, dest_file)
 
-        if os.path.isfile(dest_full_path) and os.path.getsize(dest_full_path) > 0:
+        if os.path.isfile(dest_full_path) and os.path.getsize(
+                dest_full_path) > 0:
             print('Not downloading. File already present on disk {}'.format(
                 dest_full_path))
             return 200
@@ -191,6 +189,16 @@ class RSSDownloader(object):
             sys.exit(
                 'Error attribute {} not found in config'.format(attribute_name))
         return self.config[attribute_name].get()
+
+    def create_folder_files(self):
+        '''Create folder and files'''
+        Path(self.torrent_folder).mkdir(parents=True, exist_ok=True)
+        Path(self.history_folder).mkdir(parents=True, exist_ok=True)
+        Path(self.inc).touch(exist_ok=True)
+        Path(self.hist).touch(exist_ok=True)
+
+    def get_downloaded_titles(self):
+        return self.downloaded_titles
 
     def infos(self):
         '''Provide class infos'''
