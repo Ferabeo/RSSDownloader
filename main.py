@@ -11,6 +11,7 @@ from utilConfig import getConfig
 if sys.version_info[0] < 3:
     raise Exception("Python 3 is mandatory")
 
+
 def main(argv):
     config = getConfig()['config']
     rssFeeds = config['rss'].get()
@@ -31,6 +32,7 @@ def main(argv):
     if referenceListEnabled:
         refList.infos()
         refList.save()
+
 
 if __name__ == '__main__':
     main(sys.argv)

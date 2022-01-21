@@ -22,9 +22,11 @@ appName: RSSDownloader
 config:
   historyFolder: history
   torrentFolder: download
-  movieListReferenceSkip: movieListReferenceSkip.txt
   notOlderThan: "Sat, 01 Jan 2022 00:00:00 +0200"
   notOlderThanFormat: "%a, %d %b %Y %H:%M:%S %z"
+  
+  referenceListEnabled: true
+  referenceList: referenceList.txt
 
   rss:
     - name: YggTorrent-Slay3R
@@ -45,6 +47,10 @@ Folders :
 Time limit :
 - notOlderThan: items older than this will not be grabbed
 - notOlderThanFormat: format of item published date
+
+Reference List for all (to download something only once even when appearing among multiples RSS feeds):
+- referenceListEnabled: enable  the reference list
+- referenceList: Path to the reference file
 
 Definition of RSS feeds:
 
