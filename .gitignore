@@ -8,6 +8,7 @@ __pycache__/
 download
 download/
 history/
+referenceList.txt
 
 # Config file
 config.yaml
