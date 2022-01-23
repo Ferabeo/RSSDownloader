@@ -60,8 +60,6 @@ class RSSDownloader(object):
         self.inc_data = readJsonFile(self.inc)
         self.hist_data = readJsonFile(self.hist)
 
-        self.downloaded_titles = []
-
     def start(self):
         '''Loop over RSS config to download .torrents files'''
         # ----------------------- #
@@ -118,6 +116,8 @@ class RSSDownloader(object):
                     'link': post.link,
                     'published': post.published,
                 }
+                # Add movie name to list of downloaded titles
+                self.referenceList.add(post.title)
 
     def clean_inc(self):
         '''Check rss-hist.txt to remove known items'''
@@ -157,8 +157,6 @@ class RSSDownloader(object):
                 if status_code == 200:
                     self.hist_data[inc] = inc_data
                     writeJsonFile(self.hist, self.hist_data)
-                    # Add movie name to list of downloaded titles
-                    self.downloaded_titles.append(inc)
 
     def download_torrent(self, inc, inc_data):
         '''Download .torrent and write to file'''
@@ -196,9 +194,6 @@ class RSSDownloader(object):
         Path(self.history_folder).mkdir(parents=True, exist_ok=True)
         Path(self.inc).touch(exist_ok=True)
         Path(self.hist).touch(exist_ok=True)
-
-    def get_downloaded_titles(self):
-        return self.downloaded_titles
 
     def infos(self):
         '''Provide class infos'''

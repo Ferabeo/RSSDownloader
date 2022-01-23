@@ -26,9 +26,6 @@ def main(argv):
         # currentFeed.infos()
         currentFeed.start()
 
-        for title in currentFeed.get_downloaded_titles():
-            refList.add(title)
-
     if referenceListEnabled:
         refList.infos()
         refList.save()
