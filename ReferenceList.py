@@ -20,7 +20,7 @@ class ReferenceList(object):
         # ReferenceList Infos
         self.name = 'ReferenceList'
 
-        # keep all text before year 1800 to 2199
+        # keep all text before year. Allow year between 1800 to 2199
         self.filter_pattern = re.compile('(.*)(?:(?:18|19|20|21)[0-9]{2}).*')
 
         # ------ #

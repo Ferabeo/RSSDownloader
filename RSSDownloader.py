@@ -19,7 +19,7 @@ class RSSDownloader(object):
     hist = 'rss-hist.txt'       # Location of history file
     inc = 'rss-inc.txt'     # Location of incoming links file
 
-    def __init__(self, rssFeed, config, referenceList):
+    def __init__(self, rssFeed, config, referenceList, appRise):
         '''Return a RSSDownloader object'''
 
         # -------------- #
@@ -30,6 +30,7 @@ class RSSDownloader(object):
         self.rss_url = rssFeed.get('url')
         self.filter_pattern = re.compile(rssFeed.get('filter', '.*'))
         self.referenceList = referenceList
+        self.appRise = appRise
 
         # Config
         self.config = config
@@ -160,7 +161,8 @@ class RSSDownloader(object):
 
     def download_torrent(self, inc, inc_data):
         '''Download .torrent and write to file'''
-        dest_file = '{}.torrent'.format(sanitize_filename(inc))
+        name = sanitize_filename(inc)
+        dest_file = '{}.torrent'.format(sanitize_filename(name))
         dest_full_path = os.path.join(self.torrent_folder, dest_file)
 
         if os.path.isfile(dest_full_path) and os.path.getsize(
@@ -176,6 +178,13 @@ class RSSDownloader(object):
 
             if resp.status_code == 200:
                 open(dest_full_path, 'wb').write(resp.content)
+
+                # Notify when file downloaded
+                self.appRise.notify(
+                    body='Grabbed {}'.format(name),
+                    title='RSSDownloader',
+                )
+
         except Exception as exception:
             sys.exit('Error getting torrent file - {}'.format(exception))
 

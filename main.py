@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-import os
-import datetime
+import apprise
 
 import RSSDownloader
 import ReferenceList
@@ -16,19 +15,22 @@ def main(argv):
     config = getConfig()['config']
     rssFeeds = config['rss'].get()
 
-    referenceListEnabled = config['referenceListEnabled'].get()
+    # List of references for all RSS
+    refList = ReferenceList.ReferenceList(config['referenceList'].get())
 
-    if referenceListEnabled:
-        refList = ReferenceList.ReferenceList(config['referenceList'].get())
+    # Apprise notification
+    appRise = apprise.Apprise()
+    appRise.add(config['appRiseUrl'].get())
 
     for feed in rssFeeds:
-        currentFeed = RSSDownloader.RSSDownloader(feed, config, refList)
+        currentFeed = RSSDownloader.RSSDownloader(
+            feed, config, refList, appRise)
         # currentFeed.infos()
         currentFeed.start()
 
-    if referenceListEnabled:
-        refList.infos()
-        refList.save()
+    # Save references to file
+    refList.infos()
+    refList.save()
 
 
 if __name__ == '__main__':

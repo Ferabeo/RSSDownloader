@@ -25,8 +25,9 @@ config:
   notOlderThan: "Sat, 01 Jan 2022 00:00:00 +0200"
   notOlderThanFormat: "%a, %d %b %Y %H:%M:%S %z"
   
-  referenceListEnabled: true
   referenceList: referenceList.txt
+
+  appRiseUrl: "slack://TokenA/TokenB/TokenC/Channel"
 
   rss:
     - name: YggTorrent-Slay3R
@@ -49,8 +50,10 @@ Time limit :
 - notOlderThanFormat: format of item published date
 
 Reference List for all (to download something only once even when appearing among multiples RSS feeds):
-- referenceListEnabled: enable  the reference list
 - referenceList: Path to the reference file
+
+AppRise allow to notify user when a file is grabbed. May be multiples popular mesages services. See [official documentation](https://pypi.org/project/apprise/).
+- appRiseUrl: URL of service
 
 Definition of RSS feeds:
 
